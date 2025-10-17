@@ -25,11 +25,18 @@ async function newProject(treeItem, solutionExplorerProvider) {
     const projectName = await vscode.window.showInputBox({ prompt: 'Enter project name', value: template });
     if (!projectName) return;
 
-    // Ask for location (default to solution dir)
-    const defaultFolder = path.dirname(solutionExplorerProvider.solutionFile.fsPath);
-    const uri = await vscode.window.showOpenDialog({ canSelectFolders: true, defaultUri: vscode.Uri.file(defaultFolder), openLabel: 'Select folder to create project in' });
-    if (!uri || uri.length === 0) return;
-    const targetDir = uri[0].fsPath;
+    // Determine location: use solution folder or the clicked solution folder
+    const solutionDir = path.dirname(solutionExplorerProvider.solutionFile.fsPath);
+    let targetDir = solutionDir;
+    try {
+        if (treeItem && treeItem.itemType === 'folder' && treeItem.label) {
+            // If the command was invoked on a solution folder, create the project inside that folder (under solution dir)
+            targetDir = path.join(solutionDir, treeItem.label);
+        }
+    } catch (err) {
+        // fallback to solution dir
+        targetDir = solutionDir;
+    }
 
     // Create a subfolder for the project
     const projectDir = path.join(targetDir, projectName);
