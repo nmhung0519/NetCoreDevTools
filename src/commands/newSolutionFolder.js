@@ -1,6 +1,5 @@
 const vscode = require('vscode');
 const fs = require('fs');
-const path = require('path');
 
 async function newSolutionFolder(treeItem, solutionExplorerProvider) {
     if (!solutionExplorerProvider || !solutionExplorerProvider.solutionFile) {

@@ -6,7 +6,7 @@ const { NetCoreBuildTaskProvider } = require('./taskProvider');
 const { DebugSessionManager } = require('./debugSessionManager');
 const { COMMANDS } = require('./constants');
 
-// Import command handlers
+// Import command handlers (single require)
 const {
     selectCsProj,
     openSolution,
@@ -17,9 +17,11 @@ const {
     openInTerminal,
     revealInFileExplorer,
     newFolder,
-    deleteItem
+    deleteItem,
+    newFileHandler,
+    newProject,
+    newSolutionFolder
 } = require('./commands');
-const { newFileHandler } = require('./commands');
 
 /**
  * @param {vscode.ExtensionContext} context
