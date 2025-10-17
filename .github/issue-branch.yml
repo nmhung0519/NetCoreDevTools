@@ -1,0 +1,6 @@
+mode: immediate 
+branchName: short 
+openPR: true 
+autoCloseIssue: true 
+autoLinkIssue: true 
+prTitle: 'WIP: ${issue.title}'

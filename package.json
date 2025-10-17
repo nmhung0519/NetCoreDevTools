@@ -1,0 +1,100 @@
+{
+  "name": "netcore-dev-tools",
+  "displayName": ".Net Core Dev Tools",
+  "description": "Development tools for .NET Core projects",
+  "version": "0.0.2",
+  "publisher": "your-publisher-name",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Debuggers",
+    "Other"
+  ],
+  "activationEvents": [
+    "onLanguage:csharp",
+    "workspaceContains:**/*.csproj",
+    "workspaceContains:**/*.sln"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "commands": [
+      { "command": "netcore-dev-tools.selectCsProj", "title": ".Net Core Dev Tools: Select .csproj File" },
+      { "command": "netcore-dev-tools.openSolution", "title": ".Net Core Dev Tools: Open Solution", "icon": "$(folder-opened)" },
+      { "command": "netcore-dev-tools.buildProject", "title": "Build" },
+      { "command": "netcore-dev-tools.cleanProject", "title": "Clean" },
+      { "command": "netcore-dev-tools.debugProject", "title": "Debug" },
+      { "command": "netcore-dev-tools.openInTerminal", "title": "Open in Integrated Terminal" },
+      { "command": "netcore-dev-tools.revealInFileExplorer", "title": "Reveal in File Explorer", "enablement": "!isWeb" },
+      { "command": "netcore-dev-tools.closeSolution", "title": ".Net Core Dev Tools: Close Solution", "icon": "$(close)" },
+      { "command": "netcore-dev-tools.newFolder", "title": "New Folder" },
+      { "command": "netcore-dev-tools.newFile.class", "title": "New File: Class" },
+      { "command": "netcore-dev-tools.newFile.interface", "title": "New File: Interface" },
+      { "command": "netcore-dev-tools.newFile.enum", "title": "New File: Enum" },
+      { "command": "netcore-dev-tools.newFile.custom", "title": "New File: Custom File" },
+      { "command": "netcore-dev-tools.newFile", "title": "New File" },
+      { "command": "netcore-dev-tools.deleteItem", "title": "Delete" }
+    ],
+    "menus": {
+      "view/title": [
+        { "command": "netcore-dev-tools.openSolution", "when": "view == netcoreSolutionExplorer && !netcoreSolutionLoaded", "group": "navigation" },
+        { "command": "netcore-dev-tools.closeSolution", "when": "view == netcoreSolutionExplorer && netcoreSolutionLoaded", "group": "navigation" }
+      ],
+      "view/item/context": [
+        { "command": "netcore-dev-tools.openInTerminal", "when": "view == netcoreSolutionExplorer && viewItem == project", "group": "navigation@1" },
+        { "command": "netcore-dev-tools.revealInFileExplorer", "when": "view == netcoreSolutionExplorer && (viewItem == solution || viewItem == solutionFolder || viewItem == project || viewItem == projectFolder || viewItem == projectFile)", "group": "navigation@2" },
+        { "command": "netcore-dev-tools.buildProject", "when": "view == netcoreSolutionExplorer && viewItem == project", "group": "debugging@1" },
+        { "command": "netcore-dev-tools.cleanProject", "when": "view == netcoreSolutionExplorer && viewItem == project", "group": "debugging@2" },
+        { "command": "netcore-dev-tools.debugProject", "when": "view == netcoreSolutionExplorer && viewItem == project", "group": "debugging@3" },
+        { "command": "netcore-dev-tools.newFolder", "when": "view == netcoreSolutionExplorer && (viewItem == project || viewItem == projectFolder)", "group": "navigation@3" },
+        { "command": "netcore-dev-tools.newFile", "when": "view == netcoreSolutionExplorer && (viewItem == project || viewItem == projectFolder)", "group": "navigation@4" },
+        { "command": "netcore-dev-tools.deleteItem", "when": "view == netcoreSolutionExplorer && (viewItem == projectFolder || viewItem == projectFile)", "group": "delete@1" }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [ { "id": "netcore-explorer", "title": ".NET Core", "icon": "assets/images/csharp.svg" } ]
+    },
+    "views": {
+      "netcore-explorer": [ { "id": "netcoreSolutionExplorer", "name": ".Net Core Solution", "icon": "assets/images/csharp.svg" } ]
+    },
+    "viewsWelcome": [ { "view": "netcoreSolutionExplorer", "contents": "No solution file is currently open.\n[Open Solution](command:netcore-dev-tools.openSolution)", "when": "!netcoreSolutionLoaded" } ],
+    "configuration": {
+      "title": ".Net Core Dev Tools",
+      "properties": {
+        "netcore-dev-tools.autoRevealFile": { "type": "boolean", "default": true, "description": "Automatically reveal and highlight the active file in the Solution Explorer tree view" }
+      }
+    }
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "pretest": "npm run lint",
+    "test": "node ./test/runTest.js",
+    "vscode:prepublish": "npm run lint",
+    "package": "vsce package",
+    "publish": "vsce publish",
+    "publish:patch": "vsce publish patch",
+    "publish:minor": "vsce publish minor",
+    "publish:major": "vsce publish major"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.80.0",
+    "@types/node": "16.x",
+    "@vscode/vsce": "^2.15.0",
+    "eslint": "^8.41.0",
+    "glob": "^8.1.0",
+    "@vscode/test-electron": "^2.3.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/netcore-dev-tools"
+  },
+  "keywords": [
+    "dotnet",
+    "csharp",
+    "netcore",
+    "debugging"
+  ],
+  "license": "MIT"
+}
+

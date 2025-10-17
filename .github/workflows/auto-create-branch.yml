@@ -1,0 +1,23 @@
+name: 'Auto Create Issue Branch & PR'
+
+on:
+  # Kích hoạt khi một Issue được mở
+  issues:
+    types: [opened]
+
+jobs:
+  create_issue_branch_job:
+    # Cần quyền 'write' để tạo branch, PR và cập nhật Issue.
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create Issue Branch, PR and Link Issue
+        # Sử dụng action robvanderleek/create-issue-branch
+        uses: robvanderleek/create-issue-branch@main
+        env:
+          # Cần GITHUB_TOKEN để thực hiện các thao tác ghi (write)
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

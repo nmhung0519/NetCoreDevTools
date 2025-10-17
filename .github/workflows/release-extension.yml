@@ -1,0 +1,48 @@
+name: Package and Release VSCode Extension
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+' # chạy khi push tag dạng 1.0.0, 2.1.3...
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Extract version from tag
+        id: version
+        run: echo "version=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
+
+      - name: Update package.json version
+        run: |
+          npm version ${{ steps.version.outputs.version }} --no-git-tag-version
+
+      - name: Package VSCode extension (.vsix)
+        run: |
+          npm install -g @vscode/vsce
+          vsce package
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
+          body: |
+            🚀 **VSCode Extension v${{ steps.version.outputs.version }}**
+            - Tự động đóng gói từ tag `${{ github.ref_name }}`
+          files: |
+            ./*.vsix
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
