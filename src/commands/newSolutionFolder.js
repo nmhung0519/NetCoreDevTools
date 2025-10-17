@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const fs = require('fs');
+const path = require('path');
 
 async function newSolutionFolder(treeItem, solutionExplorerProvider) {
     if (!solutionExplorerProvider || !solutionExplorerProvider.solutionFile) {
@@ -18,7 +19,25 @@ async function newSolutionFolder(treeItem, solutionExplorerProvider) {
         const folderGuid = generateGuid().toUpperCase();
         const folderTypeGuid = '2150E333-8FDC-42A3-9474-1A3956D46DE8';
 
-        const projectLine = `Project("{${folderTypeGuid}}") = "${folderName}", "${folderName}", "{${folderGuid}}"\nEndProject\n`;
+        // Determine project path for the solution file entry and on-disk folder
+        const solutionDir = path.dirname(slnPath);
+        let folderRelativePath = folderName; // default
+        let folderDiskPath = path.join(solutionDir, folderName);
+
+        // If invoked on an existing solution folder, create as a subfolder under that folder
+        let parentGuid = null;
+        if (treeItem && treeItem.itemType === 'folder') {
+            // parent folder label and GUID
+            const parentLabel = treeItem.label;
+            parentGuid = treeItem.guid;
+            if (parentLabel) {
+                // folderRelativePath should be parentLabel/folderName
+                folderRelativePath = path.join(parentLabel, folderName).replace(/\\/g, '/');
+                folderDiskPath = path.join(solutionDir, parentLabel, folderName);
+            }
+        }
+
+        const projectLine = `Project("{${folderTypeGuid}}") = "${folderName}", "${folderRelativePath}", "{${folderGuid}}"\nEndProject\n`;
 
         // Insert before Global
         const idx = slnText.lastIndexOf('\nGlobal');
@@ -28,9 +47,37 @@ async function newSolutionFolder(treeItem, solutionExplorerProvider) {
             slnText += '\n' + projectLine;
         }
 
-        // Also add an entry in NestedProjects section to keep it root-level (no parent)
-        if (slnText.includes('GlobalSection(NestedProjects)')) {
-            // append nothing (folder will be root)
+        // Ensure the NestedProjects section contains mapping if there is a parent
+        if (parentGuid) {
+            const nestedRegex = /GlobalSection\(NestedProjects\)\s*=\s*preSolution([\s\S]*?)EndGlobalSection/;
+            const match = slnText.match(nestedRegex);
+            const mappingLine = `\t\t{${folderGuid}} = {${parentGuid}}\n`;
+            if (match) {
+                // Insert mapping before EndGlobalSection inside the existing section
+                const sectionStart = match.index;
+                const insertPos = slnText.indexOf('EndGlobalSection', sectionStart);
+                slnText = slnText.slice(0, insertPos) + mappingLine + slnText.slice(insertPos);
+            } else {
+                // No NestedProjects section exists; insert one before the final EndGlobal
+                const endGlobalIdx = slnText.lastIndexOf('\nEndGlobal');
+                const nestedBlock = `\n\tGlobalSection(NestedProjects) = preSolution\n${mappingLine}\tEndGlobalSection\n`;
+                if (endGlobalIdx !== -1) {
+                    slnText = slnText.slice(0, endGlobalIdx) + nestedBlock + slnText.slice(endGlobalIdx);
+                } else {
+                    // As a fallback, append the nested block
+                    slnText += nestedBlock;
+                }
+            }
+        }
+
+        // Ensure on-disk folder exists under solution (or under parent folder)
+        try {
+            if (!fs.existsSync(folderDiskPath)) {
+                fs.mkdirSync(folderDiskPath, { recursive: true });
+            }
+        } catch (err) {
+            // ignore disk create errors but still add to sln
+            console.error('Failed to create folder on disk:', err);
         }
 
         fs.writeFileSync(slnPath, slnText, 'utf8');

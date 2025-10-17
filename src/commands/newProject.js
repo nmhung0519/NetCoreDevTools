@@ -1,6 +1,9 @@
 const vscode = require('vscode');
 const path = require('path');
 const fs = require('fs');
+const util = require('util');
+const child_process = require('child_process');
+const exec = util.promisify(child_process.exec);
 
 async function newProject(treeItem, solutionExplorerProvider) {
     // Ensure a solution is loaded
@@ -49,56 +52,58 @@ async function newProject(treeItem, solutionExplorerProvider) {
         return;
     }
 
-    // Run dotnet new in an integrated terminal
-    const term = vscode.window.createTerminal({ name: `dotnet new ${projectName}` });
-    term.show();
-    term.sendText(`cd "${projectDir.replace(/"/g, '\\"')}"`);
-    term.sendText(`dotnet new ${template} -n "${projectName}"`);
-    term.sendText('exit');
-
-    // After creation, try to find the csproj and add to solution file
-    // Delay slightly to allow dotnet to create files; user can also add manually if timing differs
-    setTimeout(async () => {
-        try {
-            // Find the first .csproj in the projectDir
-            const files = fs.readdirSync(projectDir);
-            const csproj = files.find(f => f.endsWith('.csproj'));
-            if (csproj) {
-                const relativePath = path.relative(path.dirname(solutionExplorerProvider.solutionFile.fsPath), path.join(projectDir, csproj)).replace(/\\/g, '/');
-                // Create a GUID placeholder for project in sln
-                const projectGuid = generateGuid().toUpperCase();
-                const projectTypeGuid = 'FAE04EC0-301F-11D3-BF4B-00C04F79EFBC'; // C# project type
-                const projectLine = `Project("{${projectTypeGuid}}") = "${projectName}", "${relativePath}", "{${projectGuid}}"\nEndProject\n`;
-
-                // Append to solution file before Global section
-                const slnPath = solutionExplorerProvider.solutionFile.fsPath;
-                let slnText = fs.readFileSync(slnPath, 'utf8');
-                // Insert before Global (simple heuristic)
-                const idx = slnText.lastIndexOf('\nGlobal');
-                if (idx !== -1) {
-                    slnText = slnText.slice(0, idx) + '\n' + projectLine + slnText.slice(idx);
-                } else {
-                    slnText += '\n' + projectLine;
-                }
-                fs.writeFileSync(slnPath, slnText, 'utf8');
-
-                // Refresh provider
-                await solutionExplorerProvider.loadSolution(vscode.Uri.file(slnPath));
-                vscode.window.showInformationMessage(`Project ${projectName} created and added to solution.`);
-            } else {
-                vscode.window.showWarningMessage('Project created but .csproj not found automatically. You may need to add it to the solution manually.');
-            }
-        } catch (err) {
-            console.error('Error adding project to solution:', err);
+    // Try to run dotnet commands programmatically for a robust add to solution
+    const slnPath = solutionExplorerProvider.solutionFile.fsPath;
+    try {
+        // Ensure parent dir exists
+        const projectParent = path.dirname(projectDir);
+        if (!fs.existsSync(projectParent)) {
+            fs.mkdirSync(projectParent, { recursive: true });
         }
-    }, 4000);
-}
 
-function generateGuid() {
-    // Simple GUID generator
-    function s4() { return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1); }
-    return `${s4()}${s4()}-${s4()}-${s4()}-${s4()}-${s4()}${s4()}${s4()}`;
+        // Run `dotnet new <template> -n <name> -o <projectDir>` to create project in the target folder
+        await exec(`dotnet new ${template} -n "${projectName}" -o "${projectDir}"`);
 
+        // Find the created .csproj
+        let csprojPath = path.join(projectDir, `${projectName}.csproj`);
+        if (!fs.existsSync(csprojPath)) {
+            // Fallback: search recursively for first .csproj under projectDir
+            const findCsProj = (dir) => {
+                const entries = fs.readdirSync(dir, { withFileTypes: true });
+                for (const e of entries) {
+                    const full = path.join(dir, e.name);
+                    if (e.isFile() && full.endsWith('.csproj')) return full;
+                    if (e.isDirectory()) {
+                        const found = findCsProj(full);
+                        if (found) return found;
+                    }
+                }
+                return null;
+            };
+            const found = findCsProj(projectDir);
+            if (found) csprojPath = found;
+        }
+
+        if (!csprojPath || !fs.existsSync(csprojPath)) {
+            throw new Error('.csproj not found after dotnet new');
+        }
+
+        // Run `dotnet sln <sln> add <csproj>` to add project to solution
+        await exec(`dotnet sln "${slnPath}" add "${csprojPath}"`, { cwd: path.dirname(slnPath) });
+
+        // Refresh provider
+        await solutionExplorerProvider.loadSolution(vscode.Uri.file(slnPath));
+        vscode.window.showInformationMessage(`Project ${projectName} created and added to solution.`);
+    } catch (err) {
+        // Fallback to opening an integrated terminal if programmatic exec fails (e.g., dotnet not installed or permission issues)
+        console.error('Programmatic dotnet commands failed:', err);
+        const term = vscode.window.createTerminal({ name: `dotnet new ${projectName}` });
+        term.show();
+        term.sendText(`cd "${projectDir.replace(/"/g, '\\"')}"`);
+        term.sendText(`dotnet new ${template} -n "${projectName}"`);
+        term.sendText(`dotnet sln "${slnPath}" add "${path.join(projectDir, projectName + '.csproj')}"`);
+        vscode.window.showWarningMessage('Failed to run dotnet commands automatically. A terminal has been opened so you can run the commands manually.');
+    }
 }
 
 module.exports = { newProject };
