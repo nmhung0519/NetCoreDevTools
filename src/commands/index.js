@@ -10,6 +10,8 @@ const { revealInFileExplorer } = require('./revealInFileExplorer');
 const { newFolder } = require('./newFolder');
 const { deleteItem } = require('./deleteItem');
 const { newFileHandler } = require('./newFile');
+const { newProject } = require('./newProject');
+const { newSolutionFolder } = require('./newSolutionFolder');
 
 module.exports = {
     selectCsProj,
@@ -23,5 +25,7 @@ module.exports = {
     newFolder,
     deleteItem
     ,newFileHandler
+    ,newProject
+    ,newSolutionFolder
 };
 

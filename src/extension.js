@@ -264,6 +264,15 @@ function activate(context) {
     context.subscriptions.push(
         vscode.commands.registerCommand(COMMANDS.DELETE_ITEM, (treeItem) => deleteItem(treeItem, solutionExplorerProvider))
     );
+
+    // New project and solution folder commands
+    context.subscriptions.push(
+        vscode.commands.registerCommand('netcore-dev-tools.newProject', (treeItem) => newProject(treeItem, solutionExplorerProvider))
+    );
+
+    context.subscriptions.push(
+        vscode.commands.registerCommand('netcore-dev-tools.newSolutionFolder', (treeItem) => newSolutionFolder(treeItem, solutionExplorerProvider))
+    );
 }
 
 /**

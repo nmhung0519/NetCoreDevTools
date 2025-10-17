@@ -34,6 +34,8 @@
       { "command": "netcore-dev-tools.newFile.enum", "title": "New File: Enum" },
       { "command": "netcore-dev-tools.newFile.custom", "title": "New File: Custom File" },
       { "command": "netcore-dev-tools.newFile", "title": "New File" },
+      { "command": "netcore-dev-tools.newProject", "title": "New Project" },
+      { "command": "netcore-dev-tools.newSolutionFolder", "title": "New Solution Folder" },
       { "command": "netcore-dev-tools.deleteItem", "title": "Delete" }
     ],
     "menus": {
@@ -49,6 +51,10 @@
         { "command": "netcore-dev-tools.debugProject", "when": "view == netcoreSolutionExplorer && viewItem == project", "group": "debugging@3" },
         { "command": "netcore-dev-tools.newFolder", "when": "view == netcoreSolutionExplorer && (viewItem == project || viewItem == projectFolder)", "group": "navigation@3" },
         { "command": "netcore-dev-tools.newFile", "when": "view == netcoreSolutionExplorer && (viewItem == project || viewItem == projectFolder)", "group": "navigation@4" },
+        { "command": "netcore-dev-tools.newProject", "when": "view == netcoreSolutionExplorer && viewItem == solution", "group": "navigation@3" },
+        { "command": "netcore-dev-tools.newSolutionFolder", "when": "view == netcoreSolutionExplorer && viewItem == solution", "group": "navigation@3" },
+        { "command": "netcore-dev-tools.newProject", "when": "view == netcoreSolutionExplorer && viewItem == solutionFolder", "group": "navigation@3" },
+        { "command": "netcore-dev-tools.newSolutionFolder", "when": "view == netcoreSolutionExplorer && viewItem == solutionFolder", "group": "navigation@3" },
         { "command": "netcore-dev-tools.deleteItem", "when": "view == netcoreSolutionExplorer && (viewItem == projectFolder || viewItem == projectFile)", "group": "delete@1" }
       ]
     },
