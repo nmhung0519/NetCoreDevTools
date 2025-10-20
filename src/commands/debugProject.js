@@ -79,7 +79,7 @@ async function debugProject(treeItem, context, buildTaskProvider, debugSessionMa
             const openProblems = 'Open Problems';
             const openBuildOutput = 'Open Build Output';
 
-            vscode.window.showErrorMessage(`❌ Build failed for ${projectName}`, openProblems, openBuildOutput)
+            vscode.window.showErrorMessage(`❌ Build failed for ${projectName}`, { modal: true }, openProblems, openBuildOutput)
                 .then(selection => {
                     if (selection === openProblems) {
                         // Show the Problems panel
