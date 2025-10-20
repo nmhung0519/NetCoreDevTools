@@ -75,7 +75,37 @@ async function debugProject(treeItem, context, buildTaskProvider, debugSessionMa
         });
         
         if (!buildSuccess) {
-            vscode.window.showErrorMessage(`❌ Build failed for ${projectName}`);
+            // Show an actionable error message with buttons to help the user inspect failures
+            const openProblems = 'Open Problems';
+            const openBuildOutput = 'Open Build Output';
+
+            vscode.window.showErrorMessage(`❌ Build failed for ${projectName}`, { modal: true }, openProblems, openBuildOutput)
+                .then(selection => {
+                    if (selection === openProblems) {
+                        // Show the Problems panel
+                        vscode.commands.executeCommand('workbench.actions.view.problems');
+                    } else if (selection === openBuildOutput) {
+                        // Try to reveal the dedicated tasks terminal created by the task execution
+                        // Fallback: show the Output panel's Tasks output channel
+                        const terminalName = `build: ${projectName}`;
+                        const terminals = vscode.window.terminals;
+                        // Attempt to find a matching terminal by name
+                        let found = false;
+                        for (const t of terminals) {
+                            if (t.name && t.name.includes(terminalName)) {
+                                t.show();
+                                found = true;
+                                break;
+                            }
+                        }
+
+                        if (!found) {
+                            // As a fallback, show the Tasks output in the Output panel
+                            vscode.commands.executeCommand('workbench.action.tasks.showLog');
+                        }
+                    }
+                });
+
             return;
         }
         
