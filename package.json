@@ -51,8 +51,8 @@
         { "command": "netcore-dev-tools.debugProject", "when": "view == netcoreSolutionExplorer && viewItem == project", "group": "debugging@3" },
         { "command": "netcore-dev-tools.newFolder", "when": "view == netcoreSolutionExplorer && (viewItem == project || viewItem == projectFolder)", "group": "navigation@3" },
         { "command": "netcore-dev-tools.newFile", "when": "view == netcoreSolutionExplorer && (viewItem == project || viewItem == projectFolder)", "group": "navigation@4" },
-  { "command": "netcore-dev-tools.newProject", "when": "view == netcoreSolutionExplorer && viewItem == solution", "group": "navigation@3" },
-  { "command": "netcore-dev-tools.newSolutionFolder", "when": "view == netcoreSolutionExplorer && viewItem == solution", "group": "navigation@3" },
+  { "command": "netcore-dev-tools.newProject", "when": "view == netcoreSolutionExplorer && (viewItem == solution || viewItem == solutionFolder)", "group": "navigation@3" },
+  { "command": "netcore-dev-tools.newSolutionFolder", "when": "view == netcoreSolutionExplorer && (viewItem == solution || viewItem == solutionFolder)", "group": "navigation@3" },
         { "command": "netcore-dev-tools.deleteItem", "when": "view == netcoreSolutionExplorer && (viewItem == projectFolder || viewItem == projectFile)", "group": "delete@1" }
       ]
     },

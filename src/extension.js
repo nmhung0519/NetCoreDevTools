@@ -190,62 +190,22 @@ function activate(context) {
         })
     );
 
-    // Register commands
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.SELECT_CSPROJ, selectCsProj)
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_SOLUTION, () => openSolution(solutionExplorerProvider))
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.CLOSE_SOLUTION, () => closeSolution(solutionExplorerProvider))
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.BUILD_PROJECT, buildProject)
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.CLEAN_PROJECT, cleanProject)
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.DEBUG_PROJECT, (treeItem) => debugProject(treeItem, context, buildTaskProvider, debugSessionManager))
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.OPEN_IN_TERMINAL, openInTerminal)
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.REVEAL_IN_FILE_EXPLORER, revealInFileExplorer)
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.NEW_FOLDER, (treeItem) => newFolder(treeItem, solutionExplorerProvider))
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('netcore-dev-tools.newFile.class', (treeItem) => newFileHandler('class', treeItem, solutionExplorerProvider))
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('netcore-dev-tools.newFile.interface', (treeItem) => newFileHandler('interface', treeItem, solutionExplorerProvider))
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('netcore-dev-tools.newFile.enum', (treeItem) => newFileHandler('enum', treeItem, solutionExplorerProvider))
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('netcore-dev-tools.newFile.custom', (treeItem) => newFileHandler('custom', treeItem, solutionExplorerProvider))
-    );
-
-    // Generic New File command - shows QuickPick
-    context.subscriptions.push(
-        vscode.commands.registerCommand('netcore-dev-tools.newFile', async (treeItem) => {
+    // Register commands (grouped to reduce repetition)
+    const commandsToRegister = [
+        [COMMANDS.SELECT_CSPROJ, selectCsProj],
+        [COMMANDS.OPEN_SOLUTION, () => openSolution(solutionExplorerProvider)],
+        [COMMANDS.CLOSE_SOLUTION, () => closeSolution(solutionExplorerProvider)],
+        [COMMANDS.BUILD_PROJECT, buildProject],
+        [COMMANDS.CLEAN_PROJECT, cleanProject],
+        [COMMANDS.DEBUG_PROJECT, (treeItem) => debugProject(treeItem, context, buildTaskProvider, debugSessionManager)],
+        [COMMANDS.OPEN_IN_TERMINAL, openInTerminal],
+        [COMMANDS.REVEAL_IN_FILE_EXPLORER, revealInFileExplorer],
+        [COMMANDS.NEW_FOLDER, (treeItem) => newFolder(treeItem, solutionExplorerProvider)],
+        ['netcore-dev-tools.newFile.class', (treeItem) => newFileHandler('class', treeItem, solutionExplorerProvider)],
+        ['netcore-dev-tools.newFile.interface', (treeItem) => newFileHandler('interface', treeItem, solutionExplorerProvider)],
+        ['netcore-dev-tools.newFile.enum', (treeItem) => newFileHandler('enum', treeItem, solutionExplorerProvider)],
+        ['netcore-dev-tools.newFile.custom', (treeItem) => newFileHandler('custom', treeItem, solutionExplorerProvider)],
+        ['netcore-dev-tools.newFile', async (treeItem) => {
             const choice = await vscode.window.showQuickPick([
                 'Class',
                 'Interface',
@@ -260,21 +220,15 @@ function activate(context) {
                 'Custom File': 'custom'
             };
             await newFileHandler(map[choice], treeItem, solutionExplorerProvider);
-        })
-    );
+        }],
+        [COMMANDS.DELETE_ITEM, (treeItem) => deleteItem(treeItem, solutionExplorerProvider)],
+        ['netcore-dev-tools.newProject', (treeItem) => newProject(treeItem, solutionExplorerProvider)],
+        ['netcore-dev-tools.newSolutionFolder', (treeItem) => newSolutionFolder(treeItem, solutionExplorerProvider)]
+    ];
 
-    context.subscriptions.push(
-        vscode.commands.registerCommand(COMMANDS.DELETE_ITEM, (treeItem) => deleteItem(treeItem, solutionExplorerProvider))
-    );
-
-    // New project and solution folder commands
-    context.subscriptions.push(
-        vscode.commands.registerCommand('netcore-dev-tools.newProject', (treeItem) => newProject(treeItem, solutionExplorerProvider))
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand('netcore-dev-tools.newSolutionFolder', (treeItem) => newSolutionFolder(treeItem, solutionExplorerProvider))
-    );
+    for (const [id, handler] of commandsToRegister) {
+        context.subscriptions.push(vscode.commands.registerCommand(id, handler));
+    }
 }
 
 /**
