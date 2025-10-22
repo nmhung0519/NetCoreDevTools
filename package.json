@@ -36,7 +36,8 @@
       { "command": "netcore-dev-tools.newFile", "title": "New File" },
       { "command": "netcore-dev-tools.newProject", "title": "New Project" },
       { "command": "netcore-dev-tools.newSolutionFolder", "title": "New Solution Folder" },
-      { "command": "netcore-dev-tools.deleteItem", "title": "Delete" }
+      { "command": "netcore-dev-tools.deleteItem", "title": "Delete" },
+      { "command": "netcore-dev-tools.renameItem", "title": "Rename" }
     ],
     "menus": {
       "view/title": [
@@ -53,7 +54,8 @@
         { "command": "netcore-dev-tools.newFile", "when": "view == netcoreSolutionExplorer && (viewItem == project || viewItem == projectFolder)", "group": "navigation@4" },
   { "command": "netcore-dev-tools.newProject", "when": "view == netcoreSolutionExplorer && (viewItem == solution || viewItem == solutionFolder)", "group": "navigation@3" },
   { "command": "netcore-dev-tools.newSolutionFolder", "when": "view == netcoreSolutionExplorer && (viewItem == solution || viewItem == solutionFolder)", "group": "navigation@3" },
-        { "command": "netcore-dev-tools.deleteItem", "when": "view == netcoreSolutionExplorer && (viewItem == projectFolder || viewItem == projectFile)", "group": "delete@1" }
+        { "command": "netcore-dev-tools.deleteItem", "when": "view == netcoreSolutionExplorer && (viewItem == projectFolder || viewItem == projectFile)", "group": "delete@1" },
+        { "command": "netcore-dev-tools.renameItem", "when": "view == netcoreSolutionExplorer && (viewItem == projectFolder || viewItem == projectFile || viewItem == project || viewItem == solutionFolder)", "group": "navigation@5" }
       ]
     },
     "viewsContainers": {
@@ -63,6 +65,13 @@
       "netcore-explorer": [ { "id": "netcoreSolutionExplorer", "name": ".Net Core Solution", "icon": "assets/images/csharp.svg" } ]
     },
     "viewsWelcome": [ { "view": "netcoreSolutionExplorer", "contents": "No solution file is currently open.\n[Open Solution](command:netcore-dev-tools.openSolution)", "when": "!netcoreSolutionLoaded" } ],
+    "keybindings": [
+      {
+        "command": "netcore-dev-tools.renameItem",
+        "key": "f2",
+        "when": "view == netcoreSolutionExplorer && (viewItem == projectFolder || viewItem == projectFile)"
+      }
+    ],
     "configuration": {
       "title": ".Net Core Dev Tools",
       "properties": {
