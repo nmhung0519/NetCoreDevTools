@@ -20,7 +20,8 @@ const {
     deleteItem,
     newFileHandler,
     newProject,
-    newSolutionFolder
+    newSolutionFolder,
+    renameItem
 } = require('./commands');
 
 /**
@@ -201,11 +202,11 @@ function activate(context) {
         [COMMANDS.OPEN_IN_TERMINAL, openInTerminal],
         [COMMANDS.REVEAL_IN_FILE_EXPLORER, revealInFileExplorer],
         [COMMANDS.NEW_FOLDER, (treeItem) => newFolder(treeItem, solutionExplorerProvider)],
-        ['netcore-dev-tools.newFile.class', (treeItem) => newFileHandler('class', treeItem, solutionExplorerProvider)],
-        ['netcore-dev-tools.newFile.interface', (treeItem) => newFileHandler('interface', treeItem, solutionExplorerProvider)],
-        ['netcore-dev-tools.newFile.enum', (treeItem) => newFileHandler('enum', treeItem, solutionExplorerProvider)],
-        ['netcore-dev-tools.newFile.custom', (treeItem) => newFileHandler('custom', treeItem, solutionExplorerProvider)],
-        ['netcore-dev-tools.newFile', async (treeItem) => {
+        [COMMANDS.NEW_FILE_CLASS, (treeItem) => newFileHandler('class', treeItem, solutionExplorerProvider)],
+        [COMMANDS.NEW_FILE_INTERFACE, (treeItem) => newFileHandler('interface', treeItem, solutionExplorerProvider)],
+        [COMMANDS.NEW_FILE_ENUM, (treeItem) => newFileHandler('enum', treeItem, solutionExplorerProvider)],
+        [COMMANDS.NEW_FILE_CUSTOM, (treeItem) => newFileHandler('custom', treeItem, solutionExplorerProvider)],
+        [COMMANDS.NEW_FILE, async (treeItem) => {
             const choice = await vscode.window.showQuickPick([
                 'Class',
                 'Interface',
@@ -222,8 +223,9 @@ function activate(context) {
             await newFileHandler(map[choice], treeItem, solutionExplorerProvider);
         }],
         [COMMANDS.DELETE_ITEM, (treeItem) => deleteItem(treeItem, solutionExplorerProvider)],
-        ['netcore-dev-tools.newProject', (treeItem) => newProject(treeItem, solutionExplorerProvider)],
-        ['netcore-dev-tools.newSolutionFolder', (treeItem) => newSolutionFolder(treeItem, solutionExplorerProvider)]
+        [COMMANDS.RENAME_ITEM, (treeItem) => renameItem(treeItem, solutionExplorerProvider)],
+        [COMMANDS.NEW_PROJECT, (treeItem) => newProject(treeItem, solutionExplorerProvider)],
+        [COMMANDS.NEW_SOLUTION_FOLDER, (treeItem) => newSolutionFolder(treeItem, solutionExplorerProvider)]
     ];
 
     for (const [id, handler] of commandsToRegister) {

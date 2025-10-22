@@ -9,6 +9,7 @@ const { openInTerminal } = require('./openInTerminal');
 const { revealInFileExplorer } = require('./revealInFileExplorer');
 const { newFolder } = require('./newFolder');
 const { deleteItem } = require('./deleteItem');
+const { renameItem } = require('./renameItem');
 const { newFileHandler } = require('./newFile');
 const { newProject } = require('./newProject');
 const { newSolutionFolder } = require('./newSolutionFolder');
@@ -25,6 +26,7 @@ module.exports = {
     newFolder,
     deleteItem
     ,newFileHandler
+    ,renameItem
     ,newProject
     ,newSolutionFolder
 };
